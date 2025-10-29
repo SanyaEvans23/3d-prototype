@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>3D-Menu AR — прототип</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="./dist/output.css" rel="stylesheet">
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <style>
     body { -webkit-font-smoothing: antialiased; }
@@ -152,7 +152,7 @@
 
     document.getElementById('checkout').addEventListener('click', ()=>{
       if(cart.length===0){ alert('Корзина пуста'); return; }
-      alert(`Заказ принят!\\nСумма: ${totalEl.textContent} ₽`);
+      alert(`Заказ принят!\nСумма: ${totalEl.textContent} ₽`);
       cart.length = 0; updateCartUI();
     });
 
