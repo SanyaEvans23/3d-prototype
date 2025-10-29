@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>3D-Menu AR — прототип</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <style>
+    body { -webkit-font-smoothing: antialiased; }
+    .dish-card { display: flex; gap: 1rem; background: white; padding: 1rem; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); align-items: flex-start; }
+    .dish-3d { width: 130px; height: 130px; border-radius: 0.75rem; background: #f3f4f6; overflow: hidden; flex-shrink: 0; }
+    model-viewer { width: 100%; height: 100%; background: transparent; }
+    h3 { font-weight: 600; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+  <div class="max-w-3xl mx-auto p-4">
+    <header class="flex items-center justify-between mb-4">
+      <h1 class="text-xl font-semibold">🍽️ 3D-Menu AR</h1>
+      <div class="text-sm text-right">
+        <div>Стол <strong id="table">5</strong></div>
+        <div><strong id="total">0</strong> ₽</div>
+      </div>
+    </header>
+
+    <!-- Список блюд -->
+    <section id="menu" class="grid grid-cols-1 gap-4 mb-6">
+
+      <!-- Паста -->
+      <article class="dish-card">
+        <div class="dish-3d">
+          <model-viewer src="pasta_bowl_-_polycam.glb"
+                        alt="Паста" auto-rotate rotation-per-second="30deg"
+                        camera-controls disable-pan camera-orbit="0deg 90deg 2m"
+                        shadow-intensity="1" exposure="1">
+          </model-viewer>
+        </div>
+        <div class="flex-1">
+          <div class="flex justify-between items-start">
+            <div>
+              <h3>Паста с соусом</h3>
+              <div class="text-xs text-gray-500">420 ккал • 18 г белка</div>
+            </div>
+            <div class="font-semibold">420 ₽</div>
+          </div>
+          <p class="text-sm text-gray-600 mt-2">Томаты, базилик, пармезан — вегетарианское.</p>
+          <button class="btn-add bg-green-600 text-white text-xs px-3 py-1 rounded mt-3"
+                  data-name="Паста с соусом" data-cal="420" data-prot="18" data-price="420">
+            Добавить
+          </button>
+        </div>
+      </article>
+
+      <!-- Салат -->
+      <article class="dish-card">
+        <div class="dish-3d">
+          <model-viewer src="salad_plate.glb"
+                        alt="Салат" auto-rotate rotation-per-second="25deg"
+                        camera-controls disable-pan camera-orbit="0deg 90deg 2m"
+                        shadow-intensity="1" exposure="1">
+          </model-viewer>
+        </div>
+        <div class="flex-1">
+          <div class="flex justify-between items-start">
+            <div>
+              <h3>Салат</h3>
+              <div class="text-xs text-gray-500">320 ккал • 14 г белка</div>
+            </div>
+            <div class="font-semibold">330 ₽</div>
+          </div>
+          <p class="text-sm text-gray-600 mt-2">Курица, ромен, сухарики, соус цезарь.</p>
+          <button class="btn-add bg-green-600 text-white text-xs px-3 py-1 rounded mt-3"
+                  data-name="Салат Цезарь" data-cal="320" data-prot="14" data-price="330">
+            Добавить
+          </button>
+        </div>
+      </article>
+
+      <!-- Курица -->
+      <article class="dish-card">
+        <div class="dish-3d">
+          <model-viewer src="a_roast_chickenpoultry_meshy.glb"
+                        alt="Курица гриль" auto-rotate rotation-per-second="20deg"
+                        camera-controls disable-pan camera-orbit="0deg 90deg 2m"
+                        shadow-intensity="1" exposure="1">
+          </model-viewer>
+        </div>
+        <div class="flex-1">
+          <div class="flex justify-between items-start">
+            <div>
+              <h3>Гриль-курица</h3>
+              <div class="text-xs text-gray-500">650 ккал • 46 г белка</div>
+            </div>
+            <div class="font-semibold">550 ₽</div>
+          </div>
+          <p class="text-sm text-gray-600 mt-2">Маринованная курица с овощами на гриле.</p>
+          <button class="btn-add bg-green-600 text-white text-xs px-3 py-1 rounded mt-3"
+                  data-name="Гриль-курица" data-cal="650" data-prot="46" data-price="550">
+            Добавить
+          </button>
+        </div>
+      </article>
+
+    </section>
+
+    <!-- Корзина -->
+    <section class="bg-white p-3 rounded shadow mb-6">
+      <h4 class="font-medium">Корзина</h4>
+      <div id="cartList" class="mt-2 text-sm text-gray-700">Пусто</div>
+      <div class="mt-3 flex gap-2">
+        <button id="checkout" class="flex-1 bg-blue-600 text-white py-2 rounded text-sm">Оформить</button>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const cart = [];
+    const totalEl = document.getElementById('total');
+    const cartList = document.getElementById('cartList');
+
+    function updateCartUI(){
+      if(cart.length===0){ cartList.innerHTML = 'Пусто'; totalEl.textContent = '0'; return; }
+      cartList.innerHTML = '';
+      let sum = 0;
+      cart.forEach((it, idx) =>{
+        sum += it.price * it.qty;
+        const div = document.createElement('div');
+        div.className = 'flex justify-between items-center mb-2';
+        div.innerHTML = `<div>${it.name} x${it.qty} <div class='text-xs text-gray-500'>${it.cal} ккал</div></div>
+                         <div class='text-sm text-right'>${it.price*it.qty} ₽
+                         <br><button class='text-red-500 text-xs' data-idx='${idx}'>Удалить</button></div>`;
+        cartList.appendChild(div);
+      });
+      totalEl.textContent = sum;
+      cartList.querySelectorAll('button[data-idx]').forEach(b=>
+        b.addEventListener('click', e=>{
+          const i=+e.target.dataset.idx;
+          cart.splice(i,1);
+          updateCartUI();
+        }));
+    }
+
+    document.querySelectorAll('.btn-add').forEach(btn =>
+      btn.addEventListener('click', ()=>{
+        const item = { name: btn.dataset.name, cal:+btn.dataset.cal, prot:+btn.dataset.prot, price:+btn.dataset.price, qty:1 };
+        const found = cart.find(x=>x.name===item.name);
+        if(found) found.qty++; else cart.push(item);
+        updateCartUI();
+      })
+    );
+
+    document.getElementById('checkout').addEventListener('click', ()=>{
+      if(cart.length===0){ alert('Корзина пуста'); return; }
+      alert(`Заказ принят!\\nСумма: ${totalEl.textContent} ₽`);
+      cart.length = 0; updateCartUI();
+    });
+
+    updateCartUI();
+  </script>
+</body>
+</html>
